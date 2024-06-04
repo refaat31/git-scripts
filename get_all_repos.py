@@ -5,8 +5,12 @@ import csv
 
 username = 'refaat31'
 
-with open('token.txt','r') as f:
-    GITHUB_TOKEN = f.read()
+try:
+    with open('token.txt','r') as f:
+        GITHUB_TOKEN = f.read()
+except:
+    print('Error: Please create a token.txt file with valid token.')
+    exit(1)
 
 # https://github.com/orgs/community/discussions/24382#:~:text=I%20couldn%60t%20get%20private%20repositories%20while%20i%20was%20using%20the%20wrong%20link.
 url = f'https://api.github.com/user/repos' 
@@ -26,8 +30,8 @@ while url:
     r = requests.get(url,headers=headers,params=params)
     if r.status_code == 401:
         if r.json()['message'] == 'Bad credentials':
-            print('Please provide a valid token')
-            url = None
+            print('Error: Please provide a valid token')
+            exit(1)
     
     repos.extend(r.json())
     if 'next' in r.links:
@@ -59,7 +63,7 @@ for r in repos:
 fields = ['id', 'full_name', 'url', 'private', 'owner', 'description', 'fork', 'created_at', 'updated_at']
 filename = 'all_repos.csv'
 
-with open(filename, 'w') as f:
+with open(filename, 'w',encoding='utf-8') as f:
     writer = csv.DictWriter(f,fieldnames=fields)
     writer.writeheader()
     writer.writerows(repo_trimmed)
